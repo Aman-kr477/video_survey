@@ -1,0 +1,20 @@
+# Web framework
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+
+# Database
+sqlalchemy==2.0.30
+psycopg2-binary==2.9.9
+
+# Settings
+pydantic==2.7.1
+pydantic-settings==2.2.1
+
+# User-Agent parsing
+user-agents==2.2.0
+
+# HTTP client (for IP geolocation)
+httpx==0.27.0
+
+# File handling
+python-multipart==0.0.9
