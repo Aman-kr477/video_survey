@@ -94,7 +94,7 @@ export default function QuestionScreen({
           </div>
           <h2 className="text-3xl font-extrabold text-gray-50 mb-3 tracking-tight">Survey Terminated</h2>
           <p className="text-gray-500 text-base leading-relaxed">
-            Multiple faces were detected 3 times. This session is permanently closed.
+            Face verification failed 3 times. This session is permanently closed.
           </p>
         </div>
       </div>

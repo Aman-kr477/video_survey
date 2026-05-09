@@ -10,17 +10,15 @@ import { useEffect, useRef } from "react";
  * @param {Function} onViolation  - async callback that calls the backend
  */
 export function useViolationTracker(faceStatus, onViolation) {
-  // Track whether we already fired for the current "multi-face" window
   const firedRef = useRef(false);
 
   useEffect(() => {
-    if (faceStatus === "multi-face") {
+    if (faceStatus === "multi-face" || faceStatus === "no-face") {
       if (!firedRef.current) {
         firedRef.current = true;
-        onViolation();
+        onViolation(faceStatus); // pass type so backend can log it
       }
     } else {
-      // Reset so the next distinct multi-face event fires again
       firedRef.current = false;
     }
   }, [faceStatus, onViolation]);

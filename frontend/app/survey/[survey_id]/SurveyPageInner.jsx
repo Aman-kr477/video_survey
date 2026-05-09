@@ -5,6 +5,7 @@ import { submissionAPI, surveyAPI, utilAPI } from "@/lib/api";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import QuestionScreen from "@/components/survey/QuestionScreen";
 import CompletionScreen from "@/components/survey/CompletionScreen";
+import InstructionScreen from "@/components/survey/InstructionScreen";
 import FullPageLoader from "@/components/ui/FullPageLoader";
 
 export default function SurveyPageInner() {
@@ -18,6 +19,7 @@ export default function SurveyPageInner() {
   const [violationCount, setViolationCount] = useState(0);
   const [isTerminated, setIsTerminated] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -144,10 +146,10 @@ export default function SurveyPageInner() {
     [survey, currentIndex, submissionId] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  const handleViolation = useCallback(async () => {
+  const handleViolation = useCallback(async (violationType) => {
     if (!submissionId) return;
     try {
-      const { data } = await submissionAPI.recordViolation(submissionId);
+      const { data } = await submissionAPI.recordViolation(submissionId, violationType);
       setViolationCount(data.violation_count);
       if (data.is_terminated) setIsTerminated(true);
     } catch (e) {
@@ -169,6 +171,8 @@ export default function SurveyPageInner() {
   }
 
   if (isComplete) return <CompletionScreen />;
+
+  if (showInstructions) return <InstructionScreen onStart={() => setShowInstructions(false)} />;
 
   const currentQuestion = survey && survey.questions && survey.questions[currentIndex - 1];
 

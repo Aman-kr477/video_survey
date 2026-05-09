@@ -32,7 +32,7 @@ export const submissionAPI = {
       headers: { "Content-Type": "multipart/form-data" },
     });
   },
-  recordViolation: (submissionId) =>
-    api.post(`/api/submissions/${submissionId}/violation`, { violation_type: "multiple_faces" }),
+  recordViolation: (submissionId, violationType = "multiple_faces") =>
+    api.post(`/api/submissions/${submissionId}/violation`, { violation_type: violationType }),
   complete: (submissionId) => api.post(`/api/submissions/${submissionId}/complete`),
 };
