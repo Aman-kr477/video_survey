@@ -15,6 +15,7 @@ class StartSubmissionRequest(BaseModel):
     device: str = Field(..., description="Device type: Mobile/Desktop/Tablet")
     os: str = Field(..., description="Operating system name")
     browser: str = Field(..., description="Browser name")
+    location: Optional[str] = Field(None, description="City, Country from browser geolocation")
 
 
 class SubmitAnswerRequest(BaseModel):
@@ -76,5 +77,16 @@ class CompleteSubmissionResponse(BaseModel):
     submission_id: str
     completed_at: datetime
     overall_score: Optional[int]
+
+    model_config = {"from_attributes": True}
+
+
+class SubmissionStateResponse(BaseModel):
+    """Current state of a submission — used for session restore on page refresh."""
+    submission_id: str
+    current_question_index: int
+    violation_count: int
+    is_terminated: bool
+    is_complete: bool
 
     model_config = {"from_attributes": True}

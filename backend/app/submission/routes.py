@@ -12,6 +12,7 @@ from backend.app.submission.schemas import (
     ViolationRequest,
     ViolationResponse,
     CompleteSubmissionResponse,
+    SubmissionStateResponse,
 )
 
 router = APIRouter(tags=["submissions"])
@@ -71,3 +72,12 @@ def complete_submission(
     ctrl: SubmissionController = Depends(get_submission_controller),
 ):
     return ctrl.complete(submission_id)
+
+
+@router.get("/submissions/{submission_id}", response_model=SubmissionStateResponse)
+def get_submission_state(
+    submission_id: str,
+    ctrl: SubmissionController = Depends(get_submission_controller),
+):
+    """Fetch current submission state by ID — used for session restore on page refresh."""
+    return ctrl.get_state(submission_id)

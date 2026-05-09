@@ -11,7 +11,9 @@ from backend.app.submission.schemas import (
     ViolationRequest,
     ViolationResponse,
     CompleteSubmissionResponse,
+    SubmissionStateResponse,
 )
+from backend.app.common.errors import NotFoundError
 
 
 class SubmissionController:
@@ -28,6 +30,7 @@ class SubmissionController:
             device=payload.device,
             os_name=payload.os,
             browser=payload.browser,
+            location=payload.location,
         )
         return StartSubmissionResponse(
             submission_id=submission.id,
@@ -103,4 +106,16 @@ class SubmissionController:
             submission_id=submission.id,
             completed_at=submission.completed_at,
             overall_score=submission.overall_score,
+        )
+
+    def get_state(self, submission_id: str) -> SubmissionStateResponse:
+        submission = self.service.repository.get_by_id(submission_id)
+        if submission is None:
+            raise NotFoundError(f"Submission '{submission_id}' not found.")
+        return SubmissionStateResponse(
+            submission_id=submission.id,
+            current_question_index=submission.current_question_index,
+            violation_count=submission.violation_count,
+            is_terminated=submission.is_terminated,
+            is_complete=submission.completed_at is not None,
         )

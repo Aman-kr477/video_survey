@@ -29,15 +29,15 @@ class SubmissionService(BaseService):
         device: str,
         os_name: str,
         browser: str,
+        location: Optional[str] = None,
     ) -> SurveySubmission:
         """Create a new SurveySubmission with parsed metadata."""
-        # Req 4.3 — parse UA to extract device/OS/browser
         parsed_device, parsed_os, parsed_browser = self._parse_user_agent(
             user_agent_string, device, os_name, browser
         )
 
-        # Req 4.4 — IP geolocation
-        location = self._geolocate_ip(ip)
+        # Use browser-provided location if available, fall back to IP geolocation
+        resolved_location = location if location and location != "Unknown" else self._geolocate_ip(ip)
 
         return self.repository.create_submission(
             survey_id=survey_id,
@@ -45,7 +45,7 @@ class SubmissionService(BaseService):
             device=parsed_device,
             browser=parsed_browser,
             os=parsed_os,
-            location=location,
+            location=resolved_location,
             started_at=datetime.utcnow(),
         )
 

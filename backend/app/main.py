@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import inspect, text
 
@@ -102,3 +102,14 @@ app.include_router(export_router, prefix="/api")
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+
+@app.get("/api/my-ip")
+def my_ip(request: Request):
+    """Return the client's real IP address so the frontend can pass it to start/resume."""
+    forwarded_for = request.headers.get("x-forwarded-for")
+    if forwarded_for:
+        ip = forwarded_for.split(",")[0].strip()
+    else:
+        ip = request.client.host if request.client else "0.0.0.0"
+    return {"ip": ip}

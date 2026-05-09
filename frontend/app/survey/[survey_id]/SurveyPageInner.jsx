@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { submissionAPI, surveyAPI, utilAPI } from "@/lib/api";
+import { useGeolocation } from "@/hooks/useGeolocation";
 import QuestionScreen from "@/components/survey/QuestionScreen";
 import CompletionScreen from "@/components/survey/CompletionScreen";
 import FullPageLoader from "@/components/ui/FullPageLoader";
@@ -24,9 +25,18 @@ export default function SurveyPageInner() {
   const streamRef = useRef(null);
   const handleStreamReady = useCallback((ref) => { streamRef.current = ref.current; }, []);
 
+  const { location, locationReady } = useGeolocation();
+  const locationRef = useRef(null);
+  const surveyStarted = useRef(false);
+
+  useEffect(() => { locationRef.current = location; }, [location]);
+
   useEffect(() => {
-    initSurvey();
-  }, [survey_id]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!locationReady) return;           // wait for geolocation to finish
+    if (surveyStarted.current) return;    // only run once
+    surveyStarted.current = true;
+    initSurvey(locationRef.current);
+  }, [locationReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setSubmissionInUrl = useCallback(
     (id) => { router.replace("/survey/" + survey_id + "?submission_id=" + id); },
@@ -54,7 +64,7 @@ export default function SurveyPageInner() {
     };
   };
 
-  const initSurvey = async () => {
+  const initSurvey = async (resolvedLocation) => {
     try {
       setLoading(true);
       const { data: surveyData } = await surveyAPI.get(survey_id);
@@ -90,6 +100,7 @@ export default function SurveyPageInner() {
         const { data: startData } = await submissionAPI.start(survey_id, {
           ip: fp.ip, user_agent: navigator.userAgent,
           device: fp.device, os: fp.os, browser: fp.browser,
+          location: resolvedLocation || "Unknown",
         });
         setSubmissionId(startData.submission_id);
         setCurrentIndex(startData.current_question_index);
